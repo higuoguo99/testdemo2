@@ -1,0 +1,147 @@
+﻿@model XinguanSys.Models.ReportDetails
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+            list-style: none;
+        }
+        ul {
+            height: 30px;
+        }
+        ul li {
+            float: left;
+            width: 100px;
+            background-color: pink;
+            height: 30px;
+            line-height: 30px;
+            font-weight: bold;
+            text-align:center;
+        }
+
+            ul li a {
+                text-decoration: none;
+                color: black;
+                font-weight: bold;
+            }
+
+        .current {
+            background-color: red;
+        }
+    </style>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            //加载事件
+            $("li a").click(function () {
+                //li添加或删除样式
+                $(this).parent().toggleClass("current");
+                //其他同胞元素清除当前样式
+                $(this).parent().siblings().removeClass("current");
+                var areaName = $(this).text();
+                $.ajax({
+                    url: "/ReportDetails/Show?tiaojian=" + areaName,
+                    type: "post",
+                    dataType: "json",
+                    success: function (result) {
+                        //更改第二个行的数据
+                        $("tr").eq(1).html("<td>" + result.CurrentNum + "</td><td>" + result.DiagnosisNum + "</td><td>" + result.CureNum + "</td><td>" + result.DeathNum + "</td>")
+                        //更改图片
+                        $("#tupian").attr("src", "/images/" + result.Image);
+                        //更改输入框
+                        if (areaName == "国内" || areaName == "国外") {
+                            $("#last").html("其他地区:<input type='text' /><input type='button' value='查询' onclick='chaxun(this); ' />");
+                        }
+                        
+                    }
+                });
+            });
+
+        });
+        function chaxun(obj) {
+            //li添加或删除样式
+            $(obj).parent().toggleClass("current");
+            //其他同胞元素清除当前样式
+            $(obj).parent().siblings().removeClass("current");
+            var areaName = $(obj).prev().val();
+            $.ajax({
+                url: "/ReportDetails/Show?tiaojian=" + areaName,
+                type: "post",
+                dataType: "json",
+                success: function (result) {
+                    //更改第二个行的数据
+                    $("tr").eq(1).html("<td>" + result.CurrentNum + "</td><td>" + result.DiagnosisNum + "</td><td>" + result.CureNum + "</td><td>" + result.DeathNum + "</td>")
+                    //更改图片
+                    $("#tupian").attr("src", "/images/" + result.Image);
+                    $(obj).parent().html(areaName);
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <p>
+        @Html.ActionLink("添加", "Create")
+    </p>
+    <h2 style="text-align:center;">新冠疫情大数据报告</h2>
+    <ul>
+        <li class="current"><a>国内</a></li>
+        <li><a>国外</a></li>
+        <li style="width:300px;" id="last" >其他地区:<input type="text" /><input type="button" value="查询" onclick="chaxun(this);" /></li>
+       
+    </ul>
+  
+    <table class="table">
+        <tr>
+            <td>
+                现有确诊
+            </td>
+            <td>
+                累计确诊
+            </td>
+            <td>
+                累计治愈
+            </td>
+            <td>
+                累计死亡
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                @Model.CurrentNum
+               
+            </td>
+            <td>
+                @Model.DiagnosisNum
+               
+            </td>
+            <td>
+                @Model.CureNum
+            </td>
+            <td>
+                @Model.DeathNum
+            </td>
+
+        </tr>
+        <tr>
+            <td colspan="4">
+                <img src="/images/@Model.Image" id="tupian" />
+            </td>
+        </tr>
+
+
+    </table>
+</body>
+</html>
